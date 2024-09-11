@@ -12,4 +12,5 @@ export interface IUser extends Document {
   };
   product: mongoose.Schema.Types.ObjectId;
   role: string;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
