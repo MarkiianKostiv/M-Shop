@@ -31,12 +31,18 @@ const schema = new Schema<IUser>(
       minlength: 6,
     },
 
-    cartItems: {
-      quantity: {
-        type: Number,
-        default: 1,
+    cartItems: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+        },
+        quantity: {
+          type: Number,
+          default: 1,
+        },
       },
-    },
+    ],
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",

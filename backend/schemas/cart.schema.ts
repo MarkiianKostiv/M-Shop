@@ -1,7 +1,8 @@
-import { Schema, model } from "mongoose";
-import { IProduct } from "../models/product.model";
+import mongoose, { Schema, model } from "mongoose";
+import bcrypt from "bcrypt";
+import { ICart } from "../models/cart.model";
 
-const schema = new Schema<IProduct>(
+const schema = new Schema<ICart>(
   {
     name: {
       type: String,
@@ -36,4 +37,4 @@ const schema = new Schema<IProduct>(
   }
 );
 
-export default model<IProduct>("Product", schema);
+export default model<ICart>("Cart", schema);

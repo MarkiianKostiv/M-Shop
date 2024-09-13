@@ -1,6 +1,6 @@
-import { Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
-export interface IProduct extends Document {
+export interface ICart extends Document {
   _id: string;
   name: string;
   description: string;
