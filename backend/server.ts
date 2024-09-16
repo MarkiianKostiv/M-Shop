@@ -6,6 +6,7 @@ import productRouter from "./routes/product.route";
 import cartRouter from "./routes/cart.route";
 import couponRouter from "./routes/coupon.route";
 import paymentRoute from "./routes/payment.route";
+import analyticsRoute from "./routes/analytics.route";
 
 import { connectDB } from "./lib/db";
 
@@ -22,6 +23,7 @@ app.use("/product", productRouter);
 app.use("/cart", cartRouter);
 app.use("/coupons", couponRouter);
 app.use("/payment", paymentRoute);
+app.use("/analytics", analyticsRoute);
 
 app.listen(APP_PORT, () => {
   connectDB();
