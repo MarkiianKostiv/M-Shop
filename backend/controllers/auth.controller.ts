@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import userSchema from "../schemas/user.schema";
 import jwt from "jsonwebtoken";
 import { redis } from "../lib/redis";
+import { getUserByToken } from "../utils/getUserByToken";
 
 const generateTokens = (userId: string) => {
   const accessToken = jwt.sign(
@@ -177,4 +178,16 @@ export const refreshToken = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserData = async (req: Request, res: Response) => {};
+export const getUserData = async (req: Request, res: Response) => {
+  try {
+    const accessToken = req.headers.authorization!;
+    const user = await getUserByToken(accessToken);
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (err: any) {
+    res.status(500).send({ message: err.message });
+  }
+};
