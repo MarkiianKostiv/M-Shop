@@ -1,59 +1,15 @@
 import { Response } from "express";
 import userSchema from "../schemas/user.schema";
 import productSchema from "../schemas/product.schema";
-import orederSchema from "../schemas/oreder.schema";
-
-function getDatesInRange(startDate: Date, endDate: Date) {
-  const dates = [];
-  let currentDate = new Date(startDate);
-
-  while (currentDate <= endDate) {
-    dates.push(currentDate.toISOString().split("T")[0]);
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-
-  return dates;
-}
-
-const getDailySalesData = async (startDate: Date, endDate: Date) => {
-  const dailySalesData = await orederSchema.aggregate([
-    {
-      $match: {
-        createdAt: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      },
-    },
-    {
-      $group: {
-        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-        sales: { $sum: 1 },
-        revenue: { $sum: "$totalAmount" },
-      },
-    },
-    { $sort: { _id: 1 } },
-  ]);
-
-  const dateArray = getDatesInRange(startDate, endDate);
-
-  return dateArray.map((date) => {
-    const foundData = dailySalesData.find((item) => item._id === date);
-
-    return {
-      date,
-      sales: foundData?.sales || 0,
-      revenue: foundData?.revenue || 0,
-    };
-  });
-};
+import orderSchema from "../schemas/order.schema";
+import { getDailySalesData } from "../utils/getDailySalesData";
 
 export const getData = async (res: Response) => {
   try {
     const totalUsers = await userSchema.countDocuments();
     const totalProducts = await productSchema.countDocuments();
 
-    const salesData = await orederSchema.aggregate([
+    const salesData = await orderSchema.aggregate([
       {
         $group: {
           _id: null,

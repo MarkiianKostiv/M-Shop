@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { getUserByToken } from "../utils/getUserByToken";
 import couponSchema from "../schemas/coupon.schema";
-import { stripe } from "../lib/stirpe";
+import { stripe } from "../lib/strirpe";
 import { ICoupon } from "../models/coupon.model";
-import orederSchema from "../schemas/oreder.schema";
-import { IProduct } from "../models/product.model";
-import { IOrder, IStripeProduct } from "../models/order.model";
+import orderSchema from "../schemas/order.schema";
+import { IStripeProduct } from "../models/order.model";
+import { createStripeCoupon } from "../utils/createStripeCoupon";
+import { createNewCoupon } from "../utils/createNewCoupon";
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
   try {
@@ -107,7 +108,7 @@ export const checkoutSuccess = async (req: Request, res: Response) => {
 
       const products: IStripeProduct[] = JSON.parse(session.metadata!.products);
 
-      const newOrder = new orederSchema({
+      const newOrder = new orderSchema({
         user: session.metadata!.userId,
         products: products.map((product) => ({
           product: product.id,
@@ -131,25 +132,3 @@ export const checkoutSuccess = async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-async function createStripeCoupon(disCountPercentage: number) {
-  const coupon = await stripe.coupons.create({
-    percent_off: disCountPercentage,
-    duration: "once",
-  });
-
-  return coupon.id;
-}
-
-async function createNewCoupon(userId: string) {
-  const newCoupon = new couponSchema({
-    code: "GIFT" + Math.random().toString(36).substring(2, 8).toUpperCase(),
-    discountPercentage: 10,
-    expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-    userId: userId,
-  });
-
-  await newCoupon.save();
-
-  return newCoupon;
-}
