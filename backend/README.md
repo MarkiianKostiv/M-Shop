@@ -1,10 +1,10 @@
 # E-commerce API
 
-## Опис
+## Description
 
-Цей проект представляє собою REST API для e-commerce платформи. API надає можливості для реєстрації користувачів, управління кошиком, продуктами, купонами, а також обробку платежів.
+This project is a REST API for an e-commerce platform. The API provides functionality for user registration, cart management, product management, coupons, and payment processing.
 
-## Стек технологій
+## Tech Stack
 
 - Node.js
 - Express.js
@@ -12,113 +12,130 @@
 - Mongoose
 - Stripe
 
-## Встановлення
+## Installation
 
-1. Клонуйте цей репозиторій:
+1. Clone this repository:
 
    ```bash
    git clone https://github.com/your-repository-url.git
    ```
 
-2. Встановіть залежності:
+2. Install dependencies:
 
    ```bash
    npm install
    ```
 
-3. Створіть файл `.env` з такими змінними:
+3. Create a `.env` file with the following variables:
 
    ```env
-   MONGO_URI=your-mongo-db-uri
-   JWT_SECRET=your-jwt-secret
-   STRIPE_SECRET_KEY=your-stripe-secret-key
+   PORT=your-backend-port
    ```
 
-4. Запустіть сервер:
+MONGO_URI=your-mongodb-uri
 
-   ```bash
-   npm run dev
-   ```
+REDIS_DB_URL=your-redis-url
 
-## Роутінг API
+ACCESS_TOKEN_SECRET=your-access-token-secret
+REFRESH_TOKEN_SECRET=your-refresh-token-secret
 
-### 1. Авторизація (Auth)
+CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 
-Ці маршрути забезпечують реєстрацію, вхід/вихід користувачів та управління токенами.
+STRIPE_SECRET_KEY=your-stripe-secret-key
 
-| Метод  | Роут            | Опис                          |
-| ------ | --------------- | ----------------------------- |
-| `POST` | `/auth/sign-up` | Реєстрація нового користувача |
-| `POST` | `/auth/login`   | Вхід користувача              |
-| `POST` | `/auth/logout`  | Вихід користувача             |
-| `POST` | `/auth/refresh` | Оновлення токену доступу      |
-| `GET`  | `/auth/profile` | Отримання даних користувача   |
+CLIENT_URL=your-client-url
 
-### 2. Кошик (Cart)
+````
 
-Маршрути для роботи з кошиком користувача.
+4. Start the server:
 
-| Метод    | Роут            | Опис                                |
+```bash
+npm run dev
+````
+
+## API Routing
+
+### 1. Authentication (Auth)
+
+These routes provide user registration, login/logout, and token management.
+
+| Method | Route           | Description          |
+| ------ | --------------- | -------------------- |
+| `POST` | `/auth/sign-up` | Register a new user  |
+| `POST` | `/auth/login`   | User login           |
+| `POST` | `/auth/logout`  | User logout          |
+| `POST` | `/auth/refresh` | Refresh access token |
+| `GET`  | `/auth/profile` | Get user data        |
+
+### 2. Cart
+
+Routes for managing the user's shopping cart.
+
+| Method   | Route           | Description                         |
 | -------- | --------------- | ----------------------------------- |
-| `POST`   | `/cart/`        | Додавання продукту до кошика        |
-| `GET`    | `/cart/`        | Отримання продуктів у кошику        |
-| `DELETE` | `/cart/delete`  | Видалення всіх продуктів з кошика   |
-| `PUT`    | `/cart/add/:id` | Оновлення кількості товару в кошику |
+| `POST`   | `/cart`         | Add a product to the cart           |
+| `GET`    | `/cart`         | Retrieve cart products              |
+| `DELETE` | `/cart/delete`  | Remove all products from the cart   |
+| `PUT`    | `/cart/add/:id` | Update product quantity in the cart |
 
-### 3. Продукти (Products)
+### 3. Products
 
-Маршрути для управління товарами на платформі.
+Routes for managing products on the platform.
 
-| Метод    | Роут                       | Опис                                                   |
-| -------- | -------------------------- | ------------------------------------------------------ |
-| `GET`    | `/product/`                | Отримання всіх продуктів (для адміністратора)          |
-| `GET`    | `/product/featured`        | Отримання популярних продуктів                         |
-| `GET`    | `/product/recommendations` | Отримання рекомендованих продуктів                     |
-| `GET`    | `/product/category/:name`  | Отримання продуктів за категорією                      |
-| `POST`   | `/product/add`             | Додавання нового продукту (тільки для адміністратора)  |
-| `DELETE` | `/product/delete/:id`      | Видалення продукту (тільки для адміністратора)         |
-| `PATCH`  | `/product/update/:id`      | Оновлення статусу продукту (тільки для адміністратора) |
+| Method   | Route                      | Description                        |
+| -------- | -------------------------- | ---------------------------------- |
+| `GET`    | `/product/`                | Get all products (admin only)      |
+| `GET`    | `/product/featured`        | Get featured products              |
+| `GET`    | `/product/recommendations` | Get recommended products           |
+| `GET`    | `/product/category/:name`  | Get products by category           |
+| `POST`   | `/product/add`             | Add a new product (admin only)     |
+| `DELETE` | `/product/delete/:id`      | Delete a product (admin only)      |
+| `PATCH`  | `/product/update/:id`      | Update product status (admin only) |
 
-### 4. Купони (Coupons)
+### 4. Coupons
 
-Маршрути для управління купонами.
+Routes for managing coupons.
 
-| Метод  | Роут                | Опис                                       |
-| ------ | ------------------- | ------------------------------------------ |
-| `GET`  | `/coupons/`         | Отримання активних купонів для користувача |
-| `POST` | `/coupons/validate` | Валідація купону                           |
+| Method | Route               | Description                     |
+| ------ | ------------------- | ------------------------------- |
+| `GET`  | `/coupons/`         | Get active coupons for the user |
+| `POST` | `/coupons/validate` | Validate a coupon               |
 
-### 5. Платежі (Payments)
+### 5. Payments
 
-Маршрути для роботи з платежами через Stripe.
+Routes for handling payments via Stripe.
 
-| Метод  | Роут                               | Опис                       |
-| ------ | ---------------------------------- | -------------------------- |
-| `POST` | `/payment/create-checkout-session` | Створення сесії для оплати |
-| `POST` | `/payment/checkout-success`        | Обробка успішної оплати    |
+| Method | Route                              | Description               |
+| ------ | ---------------------------------- | ------------------------- |
+| `POST` | `/payment/create-checkout-session` | Create a checkout session |
+| `POST` | `/payment/checkout-success`        | Handle successful payment |
 
-### 6. Аналітика (Analytics)
+### 6. Analytics
 
-Маршрути для отримання аналітичних даних.
+Routes for retrieving analytical data.
 
-| Метод | Роут          | Опис                                                                        |
-| ----- | ------------- | --------------------------------------------------------------------------- |
-| `GET` | `/analytics/` | Отримання загальної аналітики (кількість користувачів, продуктів, продажів) |
+| Method | Route        | Description                                                |
+| ------ | ------------ | ---------------------------------------------------------- |
+| `GET`  | `/analytics` | Get general analytics (users count, products count, sales) |
 
-## Вимоги до безпеки
+## Security Requirements
 
-Для доступу до захищених маршрутів використовується токен JWT. Для цього потрібно передавати `Authorization` заголовок з токеном у форматі:
+To access protected routes, a JWT token is required. Include the `Authorization` header with the token in the following format:
 
+```
 Authorization: Bearer <your-token>
+```
 
-## Структура проекту
+## Project Structure
 
-- `/controllers` — контролери для обробки логіки запитів
-- `/middleware` — проміжні шари для аутентифікації та авторизації
-- `/models` — моделі Mongoose для MongoDB
-- `/routes` — файли з маршрутизацією API
-- `/schemas` — схеми для валідації даних
+- `/controllers` — Controllers handling request logic
+- `/middleware` — Middleware for authentication and authorization
+- `/models` — Mongoose models for MongoDB
+- `/routes` — API route definitions
+- `/schemas` — Data validation schemas
 
-## Ліцензія
+## License
 
-Цей проект ліцензований за MIT License. Для детальної інформації перегляньте файл [LICENSE](LICENSE).
+This project is licensed under the MIT License. For more information, see the [LICENSE](LICENSE) file.
