@@ -122,12 +122,10 @@ export const login = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (authHeader) {
-      const token = authHeader.split(" ")[1];
-
+    const { refresh_token } = req.body;
+    if (refresh_token) {
       const decoded = jwt.verify(
-        token,
+        refresh_token,
         `${process.env.REFRESH_TOKEN_SECRET}`
       ) as jwt.JwtPayload;
 
