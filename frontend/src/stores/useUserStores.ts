@@ -108,7 +108,9 @@ export const useUserStore = create<UserStore>((set) => ({
     } catch (err: unknown) {
       set({ checkingAuth: false });
       if (err instanceof AxiosError) {
-        toast.error(err.response?.data?.message || "You need to login");
+        toast(err.response?.data?.message || "You need to login", {
+          icon: "ℹ️",
+        });
       }
     }
   },

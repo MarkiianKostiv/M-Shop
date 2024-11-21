@@ -18,7 +18,7 @@ app.use(cors());
 
 const APP_PORT = process.env.PORT || 5000;
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 
 app.use("/auth", authRouter);
 app.use("/product", productRouter);

@@ -4,20 +4,20 @@ import { redis } from "../lib/redis";
 import { IProduct } from "../models/product.model";
 import cloudinary from "../lib/cloudinary";
 
-export const getAllProducts = async (res: Response) => {
+export const getAllProducts = async (_req: Request, res: Response) => {
   try {
     const products = await productSchema.find({});
     if (!products) {
       res.status(400).json({ massage: "No products in the database" });
     }
 
-    res.status(200).json({ products: products });
+    res.status(200).json({ products });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 };
 
-export const getFeaturedProducts = async (res: Response) => {
+export const getFeaturedProducts = async (_req: Request, res: Response) => {
   try {
     let featuredProducts: IProduct[] | null = null;
 

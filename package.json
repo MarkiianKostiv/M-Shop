@@ -4,7 +4,10 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "dev": "nodemon",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon backend/server.ts",
+    "client": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build && tsc",
     "start": "node backend/server.ts"
   },
   "keywords": [],
