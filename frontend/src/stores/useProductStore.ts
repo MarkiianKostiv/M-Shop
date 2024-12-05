@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "react-hot-toast";
 import { AxiosError } from "axios";
-import { LocalStorageHelper } from "../helpers/localStorage.helper";
 import { IProduct } from "../interfaces/product.interface";
 
 interface IProductStore {
@@ -17,10 +16,7 @@ interface IProductStore {
   getProductsByCategory: (category: string | undefined) => Promise<void>;
 }
 
-const local = new LocalStorageHelper();
-const access_token = local.getItem("access_token");
-
-export const useProductStore = create<IProductStore>((set, get) => ({
+export const useProductStore = create<IProductStore>((set) => ({
   products: [],
   loading: false,
   setProducts: (products: IProduct[]) => set({ products }),
@@ -28,9 +24,7 @@ export const useProductStore = create<IProductStore>((set, get) => ({
   createProduct: async (productData: IProduct) => {
     set({ loading: true });
     try {
-      const res = await axiosInstance.post("/product/add", productData, {
-        headers: { Authorization: `Bearer ${access_token}` },
-      });
+      const res = await axiosInstance.post("/product/add", productData);
       set((prevState) => ({
         products: [...prevState.products, res.data],
         loading: false,
@@ -47,9 +41,7 @@ export const useProductStore = create<IProductStore>((set, get) => ({
   deleteProduct: async (id: string | undefined) => {
     try {
       set({ loading: true });
-      await axiosInstance.delete(`/product/delete/${id}`, {
-        headers: { Authorization: `Bearer ${access_token}` },
-      });
+      await axiosInstance.delete(`/product/delete/${id}`);
 
       set((prevProducts) => ({
         products: prevProducts.products.filter((product) => product._id !== id),
@@ -67,13 +59,7 @@ export const useProductStore = create<IProductStore>((set, get) => ({
   toggleFeaturedProduct: async (id: string | undefined) => {
     try {
       set({ loading: true });
-      const res = await axiosInstance.patch(
-        `/product/update/${id}`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${access_token}` },
-        }
-      );
+      const res = await axiosInstance.patch(`/product/update/${id}`, {});
 
       set((prevProducts) => ({
         products: prevProducts.products.map((product) =>
@@ -95,9 +81,7 @@ export const useProductStore = create<IProductStore>((set, get) => ({
   getAllProducts: async () => {
     set({ loading: true });
     try {
-      const res = await axiosInstance.get("/product", {
-        headers: { Authorization: `Bearer ${access_token}` },
-      });
+      const res = await axiosInstance.get("/product");
       set({ products: res.data.products, loading: false });
     } catch (err: unknown) {
       set({ loading: false });
@@ -112,9 +96,9 @@ export const useProductStore = create<IProductStore>((set, get) => ({
     try {
       set({ loading: true });
       const res = await axiosInstance.get(`/product/category/${category}`);
-      set({ products: res.data.products, loading: false });
+      set({ products: res.data.products || [], loading: false });
     } catch (err: unknown) {
-      set({ loading: false });
+      set({ loading: false, products: [] });
 
       if (err instanceof AxiosError) {
         toast.error(err.response?.data?.error || "An error occurred");

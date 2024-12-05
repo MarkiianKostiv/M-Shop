@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { CategoryItem } from "../components/core/CategoryItem";
 import { Navbar } from "../components/layout/Navbar";
 import { Wrapper } from "../components/layout/Wrapper";
@@ -23,6 +24,8 @@ export const Home = () => {
         <p className='text-center text-xl text-gray-300 mb-12'>
           Discover the latest trends in eco-friendly fashion
         </p>
+
+        <Link to={"/3-d-creator"}>Tyy our new 3d Editor</Link>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
           {categories.map((category) => (

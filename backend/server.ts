@@ -8,6 +8,7 @@ import cartRouter from "./routes/cart.route";
 import couponRouter from "./routes/coupon.route";
 import paymentRoute from "./routes/payment.route";
 import analyticsRoute from "./routes/analytics.route";
+import tasksDashBoardRoute from "./routes/tasksDashboard.route";
 
 import { connectDB } from "./lib/db";
 
@@ -26,6 +27,7 @@ app.use("/cart", cartRouter);
 app.use("/coupons", couponRouter);
 app.use("/payment", paymentRoute);
 app.use("/analytics", analyticsRoute);
+app.use("/tasks-dashboard", tasksDashBoardRoute);
 
 app.listen(APP_PORT, () => {
   connectDB();

@@ -16,9 +16,11 @@ import { CategoryPage } from "./pages/CategoryPage";
 import { CartPage } from "./pages/CartPage";
 import { useCartStore } from "./stores/useCartStore";
 import { TaskPage } from "./pages/TaskPage";
+import { TasksListPage } from "./pages/TasksListPage";
+import { ThreeDEditorPage } from "./pages/ThreeDEditorPage";
 
 function App() {
-  const { user, checkAuth, checkingAuth } = useUserStore();
+  const { user, loading, checkAuth, checkingAuth } = useUserStore();
   const { getCartItems } = useCartStore();
 
   useEffect(() => {
@@ -26,8 +28,12 @@ function App() {
   }, [checkAuth]);
 
   useEffect(() => {
-    getCartItems();
-  }, [getCartItems]);
+    if (user && !loading) {
+      setTimeout(() => {
+        getCartItems();
+      }, 10);
+    }
+  }, [user, getCartItems, loading]);
 
   if (checkingAuth) {
     return <LoadingSpinner />;
@@ -51,8 +57,17 @@ function App() {
       element: user?.role === "admin" ? <AdminPage /> : <Navigate to={"/"} />,
     },
     {
-      path: "/admin-tasks",
+      path: "/admin-tasks/:id",
       element: user?.role === "admin" ? <TaskPage /> : <Navigate to={"/"} />,
+    },
+    {
+      path: "/admin-task-dashboards",
+      element:
+        user?.role === "admin" ? <TasksListPage /> : <Navigate to={"/"} />,
+    },
+    {
+      path: "/3-d-creator",
+      element: <ThreeDEditorPage />,
     },
     {
       path: "/category/:category",

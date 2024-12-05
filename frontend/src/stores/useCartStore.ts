@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "react-hot-toast";
 import { AxiosError } from "axios";
-import { LocalStorageHelper } from "../helpers/localStorage.helper";
 import { IProduct } from "../interfaces/product.interface";
 
 interface ICardStore {
@@ -18,9 +17,6 @@ interface ICardStore {
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
 }
 
-const local = new LocalStorageHelper();
-const access_token = local.getItem("access_token");
-
 export const useCartStore = create<ICardStore>((set, get) => ({
   cart: [],
   coupon: null,
@@ -31,9 +27,8 @@ export const useCartStore = create<ICardStore>((set, get) => ({
   getCartItems: async () => {
     set({ loading: true });
     try {
-      const res = await axiosInstance.get("/cart", {
-        headers: { Authorization: `Bearer ${access_token}` },
-      });
+      const res = await axiosInstance.get("/cart");
+      console.log("get car items");
 
       set({ cart: res.data ?? [], loading: false });
     } catch (err: unknown) {
@@ -46,13 +41,7 @@ export const useCartStore = create<ICardStore>((set, get) => ({
   addToCart: async (product: IProduct) => {
     set({ loading: true });
     try {
-      await axiosInstance.post(
-        "/cart",
-        { productId: product?._id },
-        {
-          headers: { Authorization: `Bearer ${access_token}` },
-        }
-      );
+      await axiosInstance.post("/cart", { productId: product?._id });
       toast.success("Product was added to cart");
 
       set((prevState) => {
@@ -80,7 +69,6 @@ export const useCartStore = create<ICardStore>((set, get) => ({
   removeFromCart: async (productId: string) => {
     await axiosInstance.delete(`/cart/delete`, {
       data: { productId },
-      headers: { Authorization: `Bearer ${access_token}` },
     });
     set((prevState) => ({
       cart: prevState.cart.filter((item) => item._id !== productId),
@@ -94,13 +82,7 @@ export const useCartStore = create<ICardStore>((set, get) => ({
       return;
     }
 
-    await axiosInstance.put(
-      `/cart/add/${productId}`,
-      { quantity },
-      {
-        headers: { Authorization: `Bearer ${access_token}` },
-      }
-    );
+    await axiosInstance.put(`/cart/add/${productId}`, { quantity });
     set((prevState) => ({
       cart: prevState.cart.map((item) =>
         item._id === productId ? { ...item, quantity } : item
@@ -108,6 +90,7 @@ export const useCartStore = create<ICardStore>((set, get) => ({
     }));
     get().calculateTotals();
   },
+
   calculateTotals: () => {
     const { cart, coupon } = get();
     const subtotal = cart.reduce(

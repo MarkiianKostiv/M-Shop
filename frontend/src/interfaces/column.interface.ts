@@ -12,3 +12,10 @@ export interface ITask {
   description: string;
   status?: string;
 }
+
+export interface DashBoard {
+  title: string;
+  _id: string;
+  columns: IColumn[];
+  tasks: ITask[];
+}

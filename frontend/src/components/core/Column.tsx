@@ -64,7 +64,7 @@ export const Column = (column: IColumn) => {
     >
       <div className='flex items-center justify-between gap-3'>
         <input
-          className='text-black'
+          className=' border-0 bg-transparent outline-none p-2 pl-4 focus:bg-white focus:text-black rounded-md'
           type='text'
           value={title}
           placeholder='title'

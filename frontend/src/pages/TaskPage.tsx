@@ -9,11 +9,13 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Column } from "../components/core/Column";
 import { createPortal } from "react-dom";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
 import { Task } from "../components/core/Task";
+import { EmptyState } from "../components/layout/EmptyState";
+import { useParams } from "react-router-dom";
 
 export const TaskPage = () => {
   const {
@@ -27,7 +29,17 @@ export const TaskPage = () => {
     onDragOver,
     loading,
     activeTask,
+    getDashBoardById,
+    activeDashBoardTitle,
   } = useColumnsStore();
+
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (id) {
+      getDashBoardById(id);
+    }
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -46,7 +58,9 @@ export const TaskPage = () => {
     <Wrapper>
       <div className='w-full flex flex-col items-center text-center px-6 overflow-auto'>
         <div>
-          <h2>Task Page</h2>
+          <h2 className='text-center text-3xl font-extrabold text-emerald-400'>
+            {activeDashBoardTitle || "Task Page"}
+          </h2>
         </div>
         <DndContext
           sensors={sensors}
@@ -78,14 +92,22 @@ export const TaskPage = () => {
             </div>
 
             <div className='flex items-center justify-start gap-12 overflow-auto'>
-              <SortableContext items={columnsId}>
-                {columns.map((column) => (
-                  <Column
-                    key={column.id}
-                    {...column}
-                  />
-                ))}
-              </SortableContext>
+              {columns.length === 0 ? (
+                <EmptyState
+                  containerClassName={`w-full h-96 flex items-center justify-center flex-col bg-gray-500`}
+                  headerText='You have tasks'
+                  description='To add columns, please press Add column button'
+                />
+              ) : (
+                <SortableContext items={columnsId}>
+                  {columns.map((column) => (
+                    <Column
+                      key={column.id}
+                      {...column}
+                    />
+                  ))}
+                </SortableContext>
+              )}
             </div>
           </div>
           {createPortal(

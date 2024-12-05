@@ -2,8 +2,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "react-hot-toast";
 import { AxiosError } from "axios";
-import { LocalStorageHelper } from "../helpers/localStorage.helper";
-import { IColumn, ITask } from "../interfaces/column.interface";
+import { DashBoard, IColumn, ITask } from "../interfaces/column.interface";
 import {
   DragEndEvent,
   DragOverEvent,
@@ -13,12 +12,15 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 
 interface IColumnsStore {
+  dashBoards: DashBoard[];
   columns: IColumn[];
   tasks: ITask[];
   loading: boolean;
   activeColumn: IColumn | null;
   activeTask: ITask | null;
   isEdited: boolean;
+  activeDashBoardTitle: string;
+  activeDashBoardId: string;
   createNewColumn: () => void;
   deleteColumn: (id: UniqueIdentifier) => void;
   onDragStart: (event: DragStartEvent) => void;
@@ -35,12 +37,16 @@ interface IColumnsStore {
   editTask: (task: ITask) => void;
   saveDashboardData: () => void;
   onDragOver: (event: DragOverEvent) => void;
+  getAllDashBoards: () => Promise<void>;
+  getDashBoardById: (id: string) => Promise<void>;
+  createDashboard: (data: { title: string }) => Promise<void>;
+  deleteDashboard: (id: string) => Promise<void>;
 }
 
-const local = new LocalStorageHelper();
-const access_token = local.getItem("access_token");
-
 export const useColumnsStore = create<IColumnsStore>((set, get) => ({
+  dashBoards: [],
+  activeDashBoardTitle: "",
+  activeDashBoardId: "",
   columns: [],
   tasks: [],
   loading: false,
@@ -210,28 +216,28 @@ export const useColumnsStore = create<IColumnsStore>((set, get) => ({
   saveDashboardData: async () => {
     const columns = get().columns;
     const tasks = get().tasks;
+    const id = get().activeDashBoardId;
+    const title = get().activeDashBoardTitle;
 
     const dashboardData = {
+      title,
       columns,
       tasks,
     };
 
-    console.log(dashboardData);
-
     try {
       set({ loading: true });
 
-      // const res = await axiosInstance.put("/dashboard", dashboardData, {
-      //   headers: { Authorization: `Bearer ${access_token}` },
-      // });
+      const res = await axiosInstance.patch(
+        `/tasks-dashboard/${id}`,
+        dashboardData
+      );
 
-      // set({ columns: res.data.columns, tasks: res.data.tasks, loading: false });
-
-      setTimeout(() => {
-        console.log("for test");
-
-        set({ loading: false });
-      }, 10000);
+      set({
+        columns: res.data.dashBoard.columns,
+        tasks: res.data.dashBoard.tasks,
+        loading: false,
+      });
     } catch (err: unknown) {
       set({ loading: false });
 
@@ -241,5 +247,70 @@ export const useColumnsStore = create<IColumnsStore>((set, get) => ({
     }
 
     set({ isEdited: false });
+  },
+
+  getAllDashBoards: async () => {
+    try {
+      set({ loading: true });
+      const res = await axiosInstance.get("/tasks-dashboard/user");
+
+      set({ dashBoards: res.data.dashBoards, loading: false });
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        toast.error(err.message || "Error getting dashboards list");
+      }
+    }
+  },
+
+  getDashBoardById: async (id: string) => {
+    try {
+      set({ loading: true });
+      const res = await axiosInstance.get(`/tasks-dashboard/board/${id}`);
+
+      set({
+        columns: res.data.dashBoard.columns,
+        tasks: res.data.dashBoard.tasks,
+        activeDashBoardTitle: res.data.dashBoard.title,
+        activeDashBoardId: res.data.dashBoard._id,
+        loading: false,
+      });
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        toast.error(err.message || "Error getting dashboard");
+      }
+    }
+  },
+
+  createDashboard: async (data: { title: string }) => {
+    const dashBoards = get().dashBoards;
+    try {
+      set({ loading: true });
+      const res = await axiosInstance.post(`/tasks-dashboard`, data);
+
+      const updatedDashBoards = [...dashBoards, res.data.dashBoard];
+
+      set({ dashBoards: updatedDashBoards, loading: false });
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        toast.error(err.message || "Error creating dashboard");
+      }
+    }
+  },
+
+  deleteDashboard: async (id: string) => {
+    const dashBoards = get().dashBoards;
+    try {
+      set({ loading: true });
+      await axiosInstance.delete(`/tasks-dashboard/${id}`);
+      const filteredDashBoards = dashBoards.filter(
+        (dashboard) => dashboard._id !== id
+      );
+
+      set({ dashBoards: filteredDashBoards, loading: false });
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        toast.error(err.message || "Error creating dashboard");
+      }
+    }
   },
 }));

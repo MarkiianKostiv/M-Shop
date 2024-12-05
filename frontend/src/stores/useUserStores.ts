@@ -78,14 +78,9 @@ export const useUserStore = create<UserStore>((set) => ({
   logout: async () => {
     try {
       const refresh_token = local.getItem("refresh_token");
-      const access_token = local.getItem("access_token");
-      const res = await axiosInstance.post(
-        "/auth/logout",
-        { refresh_token: refresh_token },
-        {
-          headers: { Authorization: `Bearer ${access_token}` },
-        }
-      );
+      const res = await axiosInstance.post("/auth/logout", {
+        refresh_token: refresh_token,
+      });
       if (res) {
         set({ user: null });
         local.removeItem("refresh_token");
@@ -100,16 +95,14 @@ export const useUserStore = create<UserStore>((set) => ({
   checkAuth: async () => {
     set({ checkingAuth: true });
     try {
-      const access_token = local.getItem("access_token");
-      const res = await axiosInstance.get("/auth/profile", {
-        headers: { Authorization: `Bearer ${access_token}` },
-      });
+      const res = await axiosInstance.get("/auth/profile");
       set({ user: res.data, checkingAuth: false });
     } catch (err: unknown) {
       set({ checkingAuth: false });
       if (err instanceof AxiosError) {
         toast(err.response?.data?.message || "You need to login", {
           icon: "ℹ️",
+          id: "auth-error",
         });
       }
     }
